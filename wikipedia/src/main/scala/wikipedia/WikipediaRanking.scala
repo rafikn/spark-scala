@@ -30,10 +30,9 @@ object WikipediaRanking {
   def occurrencesOfLang(lang: String, rdd: RDD[WikipediaArticle]): Int =
     rdd
       .map(a => a.text.toLowerCase)
-      .aggregate(0)(
-        (initial, text) => if (text.contains(s" ${lang.toLowerCase}") || text.contains(s"${lang.toLowerCase} ")) initial+1 else  initial,
-        _ + _
-      )
+      .filter(t => t.split(" ").contains(lang.toLowerCase))
+      .count()
+      .toInt
 
   /* (1) Use `occurrencesOfLang` to compute the ranking of the languages
    *     (`val langs`) by determining the number of Wikipedia articles that
@@ -50,17 +49,13 @@ object WikipediaRanking {
    * to the Wikipedia pages in which it occurs.
    */
   def makeIndex(langs: List[String], rdd: RDD[WikipediaArticle]): RDD[(String, Iterable[WikipediaArticle])] =
-    sc.parallelize(
-      langs.map(
-        lang => {
-          (lang, rdd
-            .filter(article => article.text.toLowerCase.contains(s" ${lang.toLowerCase}") || article.text.toLowerCase.contains(s"${lang.toLowerCase} "))
-            .collect()
-            .toList
-          )
-        }
+    rdd.flatMap(article => {
+      val found = langs.filter(
+          lang => article.text.toLowerCase.split(" ").contains(lang.toLowerCase())
       )
-    )
+
+      found.map(lang => (lang, article))
+    }).groupByKey
 
   /* (2) Compute the language ranking again, but now using the inverted index. Can you notice
    *     a performance improvement?

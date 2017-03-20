@@ -71,7 +71,7 @@ class WikipediaSuite extends FunSuite with BeforeAndAfterAll {
     assert(initializeWikipediaRanking(), " -- did you fill in all the values in WikipediaRanking (conf, sc, wikiRdd)?")
     import WikipediaRanking._
     val rdd = wikiRdd
-    val res = (occurrencesOfLang("Java", rdd) == 2014)
+    val res = (occurrencesOfLang("Java", rdd) == 618)
     assert(res, "occurrencesOfLang given (specific) RDD with one element should equal to 1")
   }
 
@@ -90,7 +90,7 @@ class WikipediaSuite extends FunSuite with BeforeAndAfterAll {
     import WikipediaRanking._
     val rdd = wikiRdd
     val ranked = rankLangs(langs, rdd)
-    val res = ranked.head._1 == "Java"
+    val res = ranked.head._1 == "JavaScript"
     assert(res)
   }
 
@@ -118,7 +118,7 @@ class WikipediaSuite extends FunSuite with BeforeAndAfterAll {
     val res1 = index.count() == langs.size
 
     val t = index.map(t => (t._1, t._2.size)).collect().sortBy(-1 * _._2)
-    val res2 = t(0)._1.equals("Java") && t(0)._2 == 2014
+    val res2 = t(0)._1.equals("JavaScript") && t(0)._2 == 1721
 
     assert(res1)
     assert(res2)
@@ -146,7 +146,7 @@ class WikipediaSuite extends FunSuite with BeforeAndAfterAll {
     val rdd = wikiRdd
     val index = makeIndex(langs, rdd)
     val ranked = rankLangsUsingIndex(index)
-    val res = (ranked.head._1 == "Java")
+    val res = (ranked.head._1 == "JavaScript")
    assert(res)
   }
 
@@ -172,7 +172,7 @@ class WikipediaSuite extends FunSuite with BeforeAndAfterAll {
     import WikipediaRanking._
     val rdd = wikiRdd
     val ranked = rankLangsReduceByKey(langs, rdd)
-    val res = (ranked.head._1 == "Java")
+    val res = (ranked.head._1 == "JavaScript")
     assert(res)
   }
 
